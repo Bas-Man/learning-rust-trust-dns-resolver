@@ -1,4 +1,3 @@
-use ipnetwork::IpNetwork;
 use trust_dns_resolver::config::*;
 use trust_dns_resolver::error::ResolveResult;
 use trust_dns_resolver::lookup::MxLookup;
@@ -57,12 +56,23 @@ impl DomainMxServers {
 #[cfg(test)]
 mod tests {
     use super::DomainMxServers;
+    use super::MxHost;
     use std::ptr;
 
     #[test]
     fn example_com_has_no_mx() {
         let domain = DomainMxServers::new(String::from("example.com"), None);
         assert_eq!(domain.domain, "example.com");
+    }
+    #[test]
+    fn example_com_has_mx() {
+        let mut mx_hosts = Vec::new();
+        mx_hosts.push(MxHost::new(5, String::from("alt1.aspmx.l.google.com.")));
+        mx_hosts.push(MxHost::new(10, String::from("alt2.aspmx.l.google.com")));
+        let domain = DomainMxServers::new(String::from("example.com"), Some(mx_hosts));
+        assert_eq!(domain.domain, "example.com");
+        assert_eq!(domain.mx_hosts.is_some(), true);
+        assert!(!domain.mx_hosts.unwrap().is_empty());
     }
 }
 

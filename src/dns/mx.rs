@@ -3,22 +3,25 @@ use trust_dns_resolver::error::ResolveResult;
 use trust_dns_resolver::lookup::MxLookup;
 use trust_dns_resolver::Resolver;
 
-/// Contains host priority and exchange host name
+/// Contains host preference and exchange host name
 #[derive(Clone)]
 pub struct MxHost {
-    priority: u8,
+    preference: u16,
     exchange: String,
 }
 
 impl MxHost {
-    pub fn new(priority: u8, exchange: String) -> Self {
-        Self { priority, exchange }
+    pub fn new(preference: u16, exchange: String) -> Self {
+        Self {
+            preference,
+            exchange,
+        }
     }
-    pub fn priority(&self) -> u8 {
-        self.priority
+    pub fn preference(&self) -> u16 {
+        self.preference
     }
-    pub fn priority_as_ref(&self) -> &u8 {
-        &self.priority
+    pub fn preference_as_ref(&self) -> &u16 {
+        &self.preference
     }
     pub fn exchange(&self) -> String {
         self.exchange.clone()
@@ -38,11 +41,11 @@ mod test {
     fn mx_host() {
         let mx_host = MxHost::new(5, String::from("alt1.aspmx.l.google.com."));
         let ex_ref = mx_host.exchange_as_ref();
-        let pr_ref = mx_host.priority_as_ref();
-        // Test Priority
-        assert_eq!(mx_host.priority, 5);
-        assert_eq!(mx_host.priority(), 5);
-        assert_eq!(mx_host.priority_as_ref(), pr_ref);
+        let pr_ref = mx_host.preference_as_ref();
+        // Test preference
+        assert_eq!(mx_host.preference, 5);
+        assert_eq!(mx_host.preference(), 5);
+        assert_eq!(mx_host.preference_as_ref(), pr_ref);
         // Test Exchange
         assert_eq!(mx_host.exchange, "alt1.aspmx.l.google.com.");
         assert_eq!(mx_host.exchange(), "alt1.aspmx.l.google.com.");
@@ -74,6 +77,19 @@ impl DomainMxServers {
     }
     pub fn mx_hosts(&self) -> Option<Vec<MxHost>> {
         self.mx_hosts.clone()
+    }
+    pub fn parse(&mut self, mx_lookup: &ResolveResult<MxLookup>) {
+        match mx_lookup {
+            Err(_) => {}
+            Ok(mx_lookup) => {
+                let mut mx_records: Vec<MxHost> = Vec::new();
+                let records = mx_lookup.iter();
+                for mx in records {
+                    mx_records.push(MxHost::new(mx.preference(), mx.exchange().to_string()));
+                }
+                self.mx_hosts = Some(mx_records);
+            }
+        }
     }
 }
 #[cfg(test)]

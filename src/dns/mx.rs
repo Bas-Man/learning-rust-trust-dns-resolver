@@ -16,6 +16,9 @@ impl MxHost {
     pub fn priority(&self) -> u8 {
         self.priority
     }
+    pub fn priority_as_ref(&self) -> &u8 {
+        &self.priority
+    }
     pub fn exchange(&self) -> String {
         self.exchange.clone()
     }
@@ -35,8 +38,14 @@ mod test {
         let mx_host = MxHost::new(5, String::from("alt1.aspmx.l.google.com."));
         let ex = mx_host.exchange();
         let ex_ref = mx_host.exchange_as_ref();
+        let pr_ref = mx_host.priority_as_ref();
+        // Test Priority
         assert_eq!(mx_host.priority, 5);
+        assert_eq!(mx_host.priority(), 5);
+        assert_eq!(mx_host.priority_as_ref(), pr_ref);
+        // Test Exchange
         assert_eq!(mx_host.exchange, "alt1.aspmx.l.google.com.");
+        assert_eq!(mx_host.exchange(), "alt1.aspmx.l.google.com.");
         assert_eq!(mx_host.exchange, ex);
         assert_eq!(mx_host.exchange, ex_ref);
         assert!(ptr::eq(mx_host.exchange_as_ref(), ex_ref));

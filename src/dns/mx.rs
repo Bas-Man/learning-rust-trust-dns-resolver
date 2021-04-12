@@ -36,7 +36,6 @@ mod test {
     #[test]
     fn digg_com_mx_host() {
         let mx_host = MxHost::new(5, String::from("alt1.aspmx.l.google.com."));
-        let ex = mx_host.exchange();
         let ex_ref = mx_host.exchange_as_ref();
         let pr_ref = mx_host.priority_as_ref();
         // Test Priority
@@ -46,8 +45,6 @@ mod test {
         // Test Exchange
         assert_eq!(mx_host.exchange, "alt1.aspmx.l.google.com.");
         assert_eq!(mx_host.exchange(), "alt1.aspmx.l.google.com.");
-        assert_eq!(mx_host.exchange, ex);
-        assert_eq!(mx_host.exchange, ex_ref);
         assert!(ptr::eq(mx_host.exchange_as_ref(), ex_ref));
     }
 }

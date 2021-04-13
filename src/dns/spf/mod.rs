@@ -3,6 +3,7 @@ pub mod mechanism;
 
 use crate::dns::spf::mechanism::SpfMechanism;
 use ipnetwork::IpNetwork;
+
 #[derive(Default, Debug)]
 pub struct Spf {
     source: String,
@@ -100,8 +101,8 @@ impl Spf {
         self.clone()
     }
 
-    pub fn includes(&self) -> Option<Vec<SpfMechanism<String>>> {
-        self.include.clone()
+    pub fn includes(&self) -> &Option<Vec<SpfMechanism<String>>> {
+        &self.include
     }
     pub fn list_includes(&self) {
         match &self.include {
@@ -114,8 +115,8 @@ impl Spf {
             }
         }
     }
-    pub fn ip4(&self) -> Option<Vec<SpfMechanism<IpNetwork>>> {
-        self.ip4.clone()
+    pub fn ip4(&self) -> &Option<Vec<SpfMechanism<IpNetwork>>> {
+        &self.ip4
     }
     pub fn ip4_networks(&self) {
         match &self.ip4 {
@@ -124,6 +125,8 @@ impl Spf {
                 println!("List of ip4 networks/hosts:");
                 for item in record {
                     println!("{}", item.as_string());
+                    print!("Network: {}", item.as_network().network());
+                    println!(" Subnet: {}", item.as_network().prefix());
                 }
             }
         }
@@ -139,8 +142,8 @@ impl Spf {
             }
         }
     }
-    pub fn ip6(&self) -> Option<Vec<SpfMechanism<IpNetwork>>> {
-        self.ip6.clone()
+    pub fn ip6(&self) -> &Option<Vec<SpfMechanism<IpNetwork>>> {
+        &self.ip6
     }
     pub fn ip6_networks(&self) {
         match &self.ip6 {
@@ -149,6 +152,8 @@ impl Spf {
                 println!("List of ip6 networks/hosts:");
                 for item in record {
                     println!("{}", item.as_string());
+                    print!("Network: {}", item.as_network().network());
+                    println!(" Subnet: {}", item.as_network().prefix());
                 }
             }
         }
@@ -173,7 +178,7 @@ impl Spf {
     }
     pub fn redirect_as_mechanism(&self) -> Option<String> {
         if self.is_redirect() {
-            Some(self.redirect.as_ref().unwrap().as_mechanism())
+            Some(self.redirect.as_ref()?.as_mechanism())
         } else {
             None
         }
